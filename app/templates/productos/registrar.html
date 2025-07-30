@@ -1,0 +1,104 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container px-4 py-3">
+    <div class="mb-4 border-bottom pb-2 d-flex align-items-center">
+        <h4 class="mb-0 text-primary"><i class="bi bi-box-seam me-2"></i>Gestión de Productos</h4>
+    </div>
+
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+        {% if mensajes %}
+            {% for categoria, mensaje in mensajes %}
+                <div class="alert alert-{{ categoria }} alert-dismissible fade show" role="alert">
+                    {{ mensaje }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Formulario de registro o edición -->
+    <form method="post" action="{{ url_for('productos.registrar_producto') }}" class="needs-validation" novalidate>
+        <input type="hidden" name="id" value="{{ producto.id if producto else '' }}">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="nombre" class="form-label">Nombre del producto</label>
+                <input type="text" class="form-control" name="nombre" value="{{ producto.nombre if producto else '' }}" required>
+            </div>
+            <div class="col-md-6">
+                <label for="categoria" class="form-label">Categoría</label>
+                <input type="text" class="form-control" name="categoria" value="{{ producto.categoria if producto else '' }}" required>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="talla" class="form-label">Talla</label>
+                <input type="text" class="form-control" name="talla" value="{{ producto.talla if producto else '' }}" required>
+            </div>
+            <div class="col-md-3">
+                <label for="precio" class="form-label">Precio</label>
+                <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input type="number" class="form-control" name="precio" step="0.01" min="0" value="{{ producto.precio if producto else '' }}" required>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label for="stock" class="form-label">Stock</label>
+                <input type="number" class="form-control" name="stock" min="0" value="{{ producto.stock if producto else '' }}" required>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save me-1"></i> {{ 'Actualizar' if producto else 'Guardar producto' }}
+            </button>
+            <a href="{{ url_for('productos.registrar_producto') }}" class="btn btn-secondary ms-2">
+                <i class="bi bi-x-circle me-1"></i> Cancelar
+            </a>
+        </div>
+    </form>
+
+    <!-- Listado de productos -->
+    <hr class="my-4">
+    <h5 class="mb-3"><i class="bi bi-boxes me-2 text-secondary"></i>Productos registrados</h5>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle shadow-sm">
+            <thead class="table-light text-center">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th>Talla</th>
+                    <th>Precio</th>
+                    <th>Stock</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in productos %}
+                <tr>
+                    <td>{{ p.nombre }}</td>
+                    <td>{{ p.categoria }}</td>
+                    <td>{{ p.talla }}</td>
+                    <td>$ {{ '%.2f' | format(p.precio) }}</td>
+                    <td>{{ p.stock }}</td>
+                    <td class="text-center">
+                        <a href="{{ url_for('productos.editar_producto', id=p.id) }}" class="btn btn-sm btn-outline-primary me-1">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <a href="{{ url_for('productos.eliminar_producto', id=p.id) }}" class="btn btn-sm btn-outline-danger"
+                           onclick="return confirm('¿Deseas eliminar este producto?');">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted">No hay productos registrados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

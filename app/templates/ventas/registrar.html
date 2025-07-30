@@ -1,0 +1,161 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container px-4 py-3">
+    <div class="mb-4 border-bottom pb-2 d-flex align-items-center">
+        <h4 class="mb-0 text-warning">
+            <i class="bi bi-cart-plus-fill me-2"></i>Registrar Venta
+        </h4>
+    </div>
+
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+        {% if mensajes %}
+            {% for categoria, mensaje in mensajes %}
+                <div class="alert alert-{{ categoria }} alert-dismissible fade show" role="alert">
+                    {{ mensaje }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="row">
+        <!-- Tabla de productos -->
+        <div class="col-md-8">
+            <div class="table-responsive shadow-sm">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-light text-center">
+                        <tr>
+                            <th>Producto</th>
+                            <th>Categoría</th>
+                            <th>Talla</th>
+                            <th>Precio</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in productos %}
+                        <tr>
+                            <td>{{ producto.nombre }}</td>
+                            <td>{{ producto.categoria }}</td>
+                            <td>{{ producto.talla }}</td>
+                            <td>$ {{ '%.2f' | format(producto.precio) }}</td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-outline-success btn-sm agregar-btn"
+                                        data-id="{{ producto.id }}"
+                                        data-nombre="{{ producto.nombre }}"
+                                        data-precio="{{ '%.2f' | format(producto.precio) }}">
+                                    <i class="bi bi-plus-circle me-1"></i>Agregar
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Carrito y Cliente -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-body">
+                    <h5 class="card-title mb-3 text-secondary">
+                        <i class="bi bi-basket2 me-1"></i>Carrito
+                    </h5>
+                    <ul class="list-group mb-3" id="carrito-lista">
+                        <!-- Ítems agregados al carrito -->
+                    </ul>
+
+                    <div class="mb-3">
+                        <h6 class="mb-0">Total a pagar: <strong id="total-pagar" class="text-success">$0.00</strong></h6>
+                    </div>
+
+                    <hr>
+
+                    <h6 class="mb-2">Cliente</h6>
+                    <select class="form-select mb-3" id="cliente_id" required>
+                        <option value="">Seleccionar cliente</option>
+                        {% for cliente in clientes %}
+                        <option value="{{ cliente.id }}">{{ cliente.nombre }} - {{ cliente.correo }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <form method="POST" action="{{ url_for('ventas.registrar_venta') }}" onsubmit="return enviarVenta()">
+                        <input type="hidden" name="carrito" id="input_carrito">
+                        <input type="hidden" name="cliente_id" id="input_cliente_id">
+                        <button type="submit" class="btn btn-dark w-100">
+                            <i class="bi bi-check-circle me-1"></i>Confirmar venta
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+    let carrito = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const botonesAgregar = document.querySelectorAll('.agregar-btn');
+        botonesAgregar.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = parseInt(btn.dataset.id);
+                const nombre = btn.dataset.nombre;
+                const precio = parseFloat(btn.dataset.precio);
+                agregarACarrito(id, nombre, precio);
+            });
+        });
+    });
+
+    function agregarACarrito(id, nombre, precio) {
+        const item = carrito.find(p => p.id === id);
+        if (item) {
+            item.cantidad += 1;
+        } else {
+            carrito.push({ id, nombre, precio, cantidad: 1 });
+        }
+        renderizarCarrito();
+    }
+
+    function renderizarCarrito() {
+        const lista = document.getElementById('carrito-lista');
+        const totalPagar = document.getElementById('total-pagar');
+        lista.innerHTML = '';
+        let total = 0;
+
+        carrito.forEach(prod => {
+            const subtotal = prod.precio * prod.cantidad;
+            total += subtotal;
+
+            const item = document.createElement('li');
+            item.className = 'list-group-item d-flex justify-content-between align-items-center';
+            item.innerHTML = `
+                <div>${prod.nombre} <span class="badge bg-secondary">x${prod.cantidad}</span></div>
+                <span>$${subtotal.toFixed(2)}</span>
+            `;
+            lista.appendChild(item);
+        });
+
+        totalPagar.textContent = `$${total.toFixed(2)}`;
+    }
+
+    function enviarVenta() {
+        const clienteId = document.getElementById('cliente_id').value;
+        if (!clienteId) {
+            alert("Debe seleccionar un cliente.");
+            return false;
+        }
+        if (carrito.length === 0) {
+            alert("El carrito está vacío.");
+            return false;
+        }
+        document.getElementById('input_cliente_id').value = clienteId;
+        document.getElementById('input_carrito').value = JSON.stringify(carrito);
+        return true;
+    }
+</script>
+{% endblock %}

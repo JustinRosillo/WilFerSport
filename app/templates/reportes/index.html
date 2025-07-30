@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container px-4 py-3">
+    <div class="mb-4 border-bottom pb-2 d-flex align-items-center">
+        <h4 class="mb-0 text-primary">
+            <i class="bi bi-clipboard-data-fill me-2"></i>Reportes de Ventas
+        </h4>
+    </div>
+
+    <form method="GET" class="row g-3 align-items-end mb-4">
+        <div class="col-md-4">
+            <label for="fecha_inicio" class="form-label">Fecha de inicio</label>
+            <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio"
+                   value="{{ request.args.get('fecha_inicio', '') }}">
+        </div>
+        <div class="col-md-4">
+            <label for="fecha_fin" class="form-label">Fecha de fin</label>
+            <input type="date" class="form-control" id="fecha_fin" name="fecha_fin"
+                   value="{{ request.args.get('fecha_fin', '') }}">
+        </div>
+        <div class="col-md-4 d-grid">
+            <button type="submit" class="btn btn-outline-primary">
+                <i class="bi bi-funnel me-1"></i> Filtrar por fechas
+            </button>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle shadow-sm">
+            <thead class="table-light text-center">
+                <tr>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
+                    <th>Cantidad</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if ventas %}
+                    {% for detalle in ventas %}
+                    <tr>
+                        <td>{{ detalle.venta.fecha_venta.strftime('%d-%m-%Y') }}</td>
+                        <td>{{ detalle.venta.cliente.nombre }}</td>
+                        <td class="text-center">{{ detalle.cantidad }}</td>
+                        <td class="text-success fw-semibold">$ {{ '%.2f' | format(detalle.total) }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">No se encontraron ventas en el rango indicado.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

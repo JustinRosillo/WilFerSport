@@ -1,0 +1,83 @@
+{% extends 'layout.html' %}
+{% block content %}
+
+<div class="text-center mb-5">
+    <h2 class="fw-bold">Bienvenido, {{ session.get('usuario_nombre', 'Usuario') }}</h2>
+    <p class="text-muted fs-5">Selecciona una opción para continuar</p>
+</div>
+
+<div class="row justify-content-center">
+
+    {% if session.get('usuario_rol') == 'admin' %}
+    <div class="row">
+        <!-- Ventas del día -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h5 class="card-title text-primary"><i class="bi bi-calendar-day me-2"></i>Ventas del día</h5>
+                    <p class="card-text">Ingresos generados hoy</p>
+                    <a href="{{ url_for('ventas.reporte_ventas') }}" class="btn btn-outline-primary w-100">Ver reporte</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock crítico -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h5 class="card-title text-warning"><i class="bi bi-exclamation-triangle me-2"></i>Stock crítico</h5>
+                    <ul class="list-unstyled mb-3">
+                        {% for producto in stock_critico %}
+                            <li><i class="bi bi-box"></i> {{ producto.nombre }} ({{ producto.stock }})</li>
+                        {% else %}
+                            <li class="text-muted">Sin productos en stock bajo</li>
+                        {% endfor %}
+                    </ul>
+                    <a href="{{ url_for('productos.listar_productos') }}" class="btn btn-outline-warning w-100">Consultar</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total de ventas -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h5 class="card-title text-success"><i class="bi bi-currency-dollar me-2"></i>Total de ventas</h5>
+                    <h3 class="text-success">$ {{ '%.2f' | format(total_ventas) }}</h3>
+                    <p class="card-text">Acumulado general</p>
+                    <a href="{{ url_for('ventas.reporte_ventas') }}" class="btn btn-outline-success w-100">Ver estadísticas</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if session.get('usuario_rol') == 'vendedor' %}
+    <div class="col-md-5 mb-4">
+        <div class="card shadow-sm border-success border-1 h-100">
+            <div class="card-body">
+                <h5 class="card-title text-success"><i class="bi bi-person-plus-fill me-2"></i>Registrar Cliente</h5>
+                <p class="card-text">Agrega un nuevo cliente.</p>
+                <a href="/clientes/registrar" class="btn btn-success w-100">Ir a clientes</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-5 mb-4">
+        <div class="card shadow-sm border-primary border-1 h-100">
+            <div class="card-body">
+                <h5 class="card-title text-primary"><i class="bi bi-cart-plus-fill me-2"></i>Registrar Venta</h5>
+                <p class="card-text">Procesa una venta nueva.</p>
+                <a href="/ventas/registrar" class="btn btn-primary w-100">Ir a ventas</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<footer class="text-muted text-center mt-5">
+    <small>Versión Alpha - WilFerSport</small>
+</footer>
+
+{% endblock %}

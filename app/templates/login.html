@@ -1,0 +1,49 @@
+{% extends 'layout_simple.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+
+<div class="login-body">
+    <div class="login-wrapper">
+        <div class="login-container">
+            <!-- Logo + texto -->
+            <div class="logo-header d-flex align-items-center justify-content-center mb-4">
+                <img src="{{ url_for('static', filename='images/logo_wf.png') }}" alt="Logo WF">
+                <h2 class="ms-3">WilFer Sport</h2>
+            </div>
+
+            {% if error %}
+                <div class="alert alert-danger text-center">{{ error }}</div>
+            {% endif %}
+
+            <form method="POST" novalidate>
+                <!-- Campo correo -->
+                <div class="input-icon">
+                    <span class="icon"><i class="bi bi-envelope-fill"></i></span>
+                    <input type="email" name="correo" class="form-control" placeholder="Correo electrónico" required>
+                </div>
+
+                <!-- Campo contraseña -->
+                <div class="input-icon">
+                    <span class="icon"><i class="bi bi-lock-fill"></i></span>
+                    <input type="password" name="contraseña" class="form-control" placeholder="Contraseña" required>
+                </div>
+
+                <!-- Recordarme y link -->
+                <div class="form-check mb-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <input type="checkbox" class="form-check-input" id="recordarme">
+                        <label class="form-check-label" for="recordarme">Recuérdame</label>
+                    </div>
+                    <small><a href="#" class="text-decoration-none">¿Olvidaste tu contraseña?</a></small>
+                </div>
+
+                <!-- Botón -->
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar sesión
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
